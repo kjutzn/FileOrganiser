@@ -58,12 +58,10 @@ def organize_files_by_extension(source_folder):
 
 
 if __name__ == "__main__":
-    source_directory = input("Unesite path glavnog foldera: ")
+    source_directory = input("Enter path of source folder: ")
 
     if os.path.exists(source_directory):
         organize_files_by_extension(source_directory)
-        print("Zavrseno.")
-        print("exit code: 1")
+        print("Finished! Thank you for using this script.")
     else:
-        print("Glavni folder nije pronadjen!")
-        print("exit code: 2")
+        print("Source Folder not found!")
