@@ -22,13 +22,37 @@ file_extensions = {
     'mp4': 'Videos',
     'avi': 'Videos',
     'flv': 'Videos',
-    'pkg': 'Mac Installers',
     'dmg': 'macOS Disk Images',
     'deb': 'Debian Software Packages / iOS tweak',
     'm4a': 'MPEG-4 Audio Files',
     'tipa': 'TrollStore Application',
     'ipa': 'iOS App',
-    '7zip': 'Archives'
+    '7zip': 'Archives',
+    'pkg': 'Package file',
+    'tar.gz': 'Tarball compressed file',
+    'bin': 'Binary disc image',
+    'iso': 'ISO disk image',
+    'toast': 'Toast disk image',
+    'vcd': 'Virtual CD',
+    'csv': 'Comma separated value file',
+    'dat': 'Data file',
+    'db': 'Database file',
+    'log': 'Log files',
+    'mdb': 'Microsoft Access database file',
+    'sav': 'Save files',
+    'sql': 'SQL database file',
+    'tar': 'Linux-Unix Tarball File Archive',
+    'xml': 'XML file',
+    'apk': 'Android package file',
+    'bat': 'Batch File',
+    'py': 'Python files',
+    'fnt': 'Fonts',
+    'fon': 'Fonts',
+    'otf': 'Fonts',
+    'ttf': 'Fonts',
+    'bmp': 'Images',
+    'ico': 'Icons',
+    'webp': 'Images'
 }
 
 class FileOrganizerApp(QMainWindow):
@@ -49,7 +73,7 @@ class FileOrganizerApp(QMainWindow):
 
         self.label = QLabel("Hopper Sort", self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
-        self.label.setFont(self.label_font) 
+        self.label.setFont(self.label_font)
         layout.addWidget(self.label)
 
         self.manual_button = QPushButton("Manual Path", self)
@@ -101,7 +125,7 @@ class FileOrganizerApp(QMainWindow):
             shutil.move(source_file, destination_file)
 
     def resizeEvent(self, event):
-        new_font_size = int(event.size().width() / 10)
+        new_font_size = int(event.size().width() / 8)
         self.label_font.setPointSize(new_font_size)
         self.label.setFont(self.label_font)
 
