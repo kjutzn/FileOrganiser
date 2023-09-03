@@ -101,7 +101,7 @@ class FileOrganizerApp(QMainWindow):
             shutil.move(source_file, destination_file)
 
     def resizeEvent(self, event):
-        new_font_size = int(event.size().width() / 8)
+        new_font_size = int(event.size().width() / 10)
         self.label_font.setPointSize(new_font_size)
         self.label.setFont(self.label_font)
 
