@@ -9,14 +9,6 @@ Before and after
 
 ## How to install
 
-1. Install [Python](https://www.python.org/downloads/)
+1. Get Latest version of [HopperSort](https://github.com/kjutzn/HopperSort/releases)
 
-1. Get Latest version of HopperSort
-
-2. Open Terminal / Cmd and enter
-
-```
-pip install PyQt6
-```
-
-4. Run HopperSort
+1. Run HopperSort
