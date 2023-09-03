@@ -28,8 +28,8 @@ file_extensions = {
 }
 
 def rename_directory(old_name, new_name):
-
     os.rename(old_name, new_name)
+
 def create_directory(directory):
     if not os.path.exists(directory):
         os.makedirs(directory)
@@ -58,12 +58,18 @@ def organize_files_by_extension(source_folder):
 
 
 if __name__ == "__main__":
-    source_directory = input("Unesite path glavnog foldera: ")
+
+    choice = input("Do you want to manually enter the source path? (Y/N): ").strip().lower()
+
+    if choice == 'y':
+        source_directory = input("Enter the path to the source directory: ")
+    else:
+        # Get the directory where the script is located
+        script_directory = os.path.dirname(__file__)
+        source_directory = script_directory
 
     if os.path.exists(source_directory):
         organize_files_by_extension(source_directory)
-        print("Zavrseno.")
-        print("exit code: 1")
+        print("Done.")
     else:
-        print("Glavni folder nije pronadjen!")
-        print("exit code: 2")
+        print("Source directory not found!")
