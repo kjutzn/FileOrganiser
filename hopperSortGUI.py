@@ -1,46 +1,72 @@
 import os
 import shutil
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
+from PyQt6.QtCore import Qt
+from PyQt6.QtGui import QFont
 
 file_extensions = {
-    'pdf'  : 'PDFs',
-    'png'  : 'Images',
-    'jpg'  : 'Images',
-    'jpeg' : 'Images',
-    'gif'  : 'Images',
-    'doc'  : 'Documents',
-    'docx' : 'Documents',
-    'txt'  : 'Documents',
-    'zip'  : 'Archives',
-    'rar'  : 'Archives',
-    'exe'  : 'Programs',
-    'mp3'  : 'Music',
-    'wav'  : 'Music',
-    'mp4'  : 'Videos',
-    'avi'  : 'Videos',
-    'flv'  : 'Videos',
-    'pkg'  : 'Mac Installers',
-    'dmg'  : 'macOS Disk Images',
-    'deb'  : 'Debian Software Packages / iOS tweak',
-    'm4a'  : 'MPEG-4 Audio Files',
-    'tipa' : 'TrollStore Application',
-    'ipa'  : 'iOS App',
-    '7zip' : 'Archives'
+    'pdf': 'PDFs',
+    'png': 'Images',
+    'jpg': 'Images',
+    'jpeg': 'Images',
+    'gif': 'Images',
+    'doc': 'Documents',
+    'docx': 'Documents',
+    'txt': 'Documents',
+    'zip': 'Archives',
+    'rar': 'Archives',
+    'exe': 'Programs',
+    'mp3': 'Music',
+    'wav': 'Music',
+    'mp4': 'Videos',
+    'avi': 'Videos',
+    'flv': 'Videos',
+    'pkg': 'Mac Installers',
+    'dmg': 'macOS Disk Images',
+    'deb': 'Debian Software Packages / iOS tweak',
+    'm4a': 'MPEG-4 Audio Files',
+    'tipa': 'TrollStore Application',
+    'ipa': 'iOS App',
+    '7zip': 'Archives'
 }
+
 class FileOrganizerApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
-        self.setWindowTitle("HopperSort")
+        self.setWindowTitle("Hopper Sort")
         self.setGeometry(100, 100, 400, 200)
 
-        self.manual_button = QPushButton("Manual Input", self)
-        self.manual_button.setGeometry(50, 50, 150, 50)
-        self.manual_button.clicked.connect(self.manual_input)
+        central_widget = QWidget()
+        self.setCentralWidget(central_widget)
+        layout = QVBoxLayout()
 
-        self.automatic_button = QPushButton("Automatic (Use Script Location)", self)
-        self.automatic_button.setGeometry(200, 50, 150, 50)
+        self.label_font = QFont()
+        self.label_font.setPointSize(100)
+        self.label_font.setBold(True)
+        self.label_font.setFamily("Sedgwick Ave Display")
+
+        self.label = QLabel("Hopper Sort", self)
+        self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
+        self.label.setFont(self.label_font) 
+        layout.addWidget(self.label)
+
+        self.manual_button = QPushButton("Manual Path", self)
+        font = QFont(self.manual_button.font())
+        font.setPointSize(font.pointSize() + 2)
+        self.manual_button.setFont(font)
+        layout.addWidget(self.manual_button)
+
+        self.automatic_button = QPushButton("Automatic (Program Location)", self)
+        font = QFont(self.automatic_button.font())
+        font.setPointSize(font.pointSize() + 2)
+        self.automatic_button.setFont(font)
+        layout.addWidget(self.automatic_button)
+
+        central_widget.setLayout(layout)
+
+        self.manual_button.clicked.connect(self.manual_input)
         self.automatic_button.clicked.connect(self.automatic_input)
 
     def manual_input(self):
@@ -73,6 +99,11 @@ class FileOrganizerApp(QMainWindow):
 
             destination_file = os.path.join(destination_folder, filename)
             shutil.move(source_file, destination_file)
+
+    def resizeEvent(self, event):
+        new_font_size = int(event.size().width() / 8)
+        self.label_font.setPointSize(new_font_size)
+        self.label.setFont(self.label_font)
 
 def main():
     app = QApplication(sys.argv)
