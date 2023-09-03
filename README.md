@@ -19,4 +19,4 @@ Before and after
 pip install PyQt6
 ```
 
-4. Run HopperSort.py
+4. Run HopperSort
