@@ -1,9 +1,12 @@
 # HopperSort
 ## Tired of messy desktop. This tool is for you!
 
-This is early beta, All bugs and extensions you want me to add can be reported through Github
+Release v1.2 is out:
+For Windows use HopperSort.exe
+For Mac use HopperSortMac
 
-GUI version is out for all os, automatic option doesn't work (Will be removed in next version)
+
+-if having issues with splash screen use HopperSortD.exe also report that issue in GitHub
 
 ![Usage](https://github.com/kjutzn/HopperSort/assets/130908680/bab5e8eb-bef1-49b5-bab5-f95352ee7d57)
 
