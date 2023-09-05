@@ -1,7 +1,7 @@
 # HopperSort
 ## Tired of messy desktop. This tool is for you!
 
-Release v1.2 is out:
+Release v1.1 is out:
 For Windows use HopperSort.exe
 For Mac use HopperSortMac
 
