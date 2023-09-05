@@ -82,16 +82,21 @@ class FileOrganizerApp(QMainWindow):
         self.manual_button.setFont(font)
         layout.addWidget(self.manual_button)
 
-        self.automatic_button = QPushButton("Automatic (Program Location)", self)
-        font = QFont(self.automatic_button.font())
-        font.setPointSize(font.pointSize() + 2)
-        self.automatic_button.setFont(font)
-        layout.addWidget(self.automatic_button)
+        # Add buttons for desktop, downloads, and documents
+        self.desktop_button = QPushButton("Desktop", self)
+        self.downloads_button = QPushButton("Downloads", self)
+        self.documents_button = QPushButton("Documents", self)
+
+        layout.addWidget(self.desktop_button)
+        layout.addWidget(self.downloads_button)
+        layout.addWidget(self.documents_button)
 
         central_widget.setLayout(layout)
 
         self.manual_button.clicked.connect(self.manual_input)
-        self.automatic_button.clicked.connect(self.automatic_input)
+        self.desktop_button.clicked.connect(self.organize_files_on_desktop)
+        self.downloads_button.clicked.connect(self.organize_files_in_downloads)
+        self.documents_button.clicked.connect(self.organize_files_in_documents)
 
     def manual_input(self):
         source_directory = QFileDialog.getExistingDirectory(self, "Select the source directory")
@@ -99,10 +104,20 @@ class FileOrganizerApp(QMainWindow):
             self.organize_files_by_extension(source_directory)
             QMessageBox.information(self, "Info", "File organization completed.")
 
-    def automatic_input(self):
-        script_directory = os.path.dirname(os.path.abspath(__file__))
-        self.organize_files_by_extension(script_directory)
-        QMessageBox.information(self, "Info", "File organization completed.")
+    def organize_files_on_desktop(self):
+        desktop_path = os.path.expanduser("~/Desktop")
+        self.organize_files_by_extension(desktop_path)
+        QMessageBox.information(self, "Info", "File organization on Desktop completed.")
+
+    def organize_files_in_downloads(self):
+        downloads_path = os.path.expanduser("~/Downloads")
+        self.organize_files_by_extension(downloads_path)
+        QMessageBox.information(self, "Info", "File organization in Downloads completed.")
+
+    def organize_files_in_documents(self):
+        documents_path = os.path.expanduser("~/Documents")
+        self.organize_files_by_extension(documents_path)
+        QMessageBox.information(self, "Info", "File organization in Documents completed.")
 
     def organize_files_by_extension(self, source_folder):
         for filename in os.listdir(source_folder):
@@ -114,9 +129,11 @@ class FileOrganizerApp(QMainWindow):
             file_extension = filename.split('.')[-1]
 
             if file_extension in file_extensions:
-                destination_folder = os.path.join(source_folder, file_extensions[file_extension])
+                destination_folder_name = file_extensions[file_extension]
             else:
-                destination_folder = os.path.join(source_folder, file_extension)
+                destination_folder_name = file_extension
+
+            destination_folder = os.path.join(source_folder, destination_folder_name)
 
             if not os.path.exists(destination_folder):
                 os.makedirs(destination_folder)
