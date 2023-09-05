@@ -4,6 +4,7 @@ import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+import pyi_splash
 
 file_extensions = {
     'pdf': 'PDFs',
@@ -147,6 +148,7 @@ class FileOrganizerApp(QMainWindow):
         self.label.setFont(self.label_font)
 
 def main():
+    pyi_splash.close()
     app = QApplication(sys.argv)
     window = FileOrganizerApp()
     window.show()
