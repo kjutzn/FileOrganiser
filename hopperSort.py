@@ -83,7 +83,6 @@ class FileOrganizerApp(QMainWindow):
         self.manual_button.setFont(font)
         layout.addWidget(self.manual_button)
 
-        # Add buttons for desktop, downloads, and documents
         self.desktop_button = QPushButton("Desktop", self)
         self.downloads_button = QPushButton("Downloads", self)
         self.documents_button = QPushButton("Documents", self)
