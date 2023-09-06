@@ -8,7 +8,7 @@ For Mac use HopperSortMac
 
 -if having issues with splash screen use HopperSortD.exe also report that issue in GitHub
 
-![Usage](https://github.com/kjutzn/HopperSort/assets/130908680/bab5e8eb-bef1-49b5-bab5-f95352ee7d57)
+lazy asf to replace
 
 ## How to install
 
