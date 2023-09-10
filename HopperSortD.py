@@ -1,8 +1,9 @@
 import os
 import shutil
 import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, \
+    QLabel
+from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtGui import QFont
 
 file_extensions = {
@@ -55,9 +56,20 @@ file_extensions = {
     'webp': 'Images'
 }
 
+
+def create_log_file():
+    current_datetime = QDateTime.currentDateTime()
+    log_filename = f"logs/log_{current_datetime.toString('yyyy-MM-dd_hh-mm-ss')}.txt"
+    log_file = open(log_filename, "w")
+    return log_file, log_filename
+
+
 class FileOrganizerApp(QMainWindow):
     def __init__(self):
         super().__init__()
+
+        self.log_file, self.log_filename = create_log_file()
+        self.log(f"Debug log  {self.log_filename}\n")
 
         self.setWindowTitle("Hopper Sort")
         self.setGeometry(100, 100, 400, 200)
@@ -82,7 +94,6 @@ class FileOrganizerApp(QMainWindow):
         self.manual_button.setFont(font)
         layout.addWidget(self.manual_button)
 
-        # Add buttons for desktop, downloads, and documents
         self.desktop_button = QPushButton("Desktop", self)
         self.downloads_button = QPushButton("Downloads", self)
         self.documents_button = QPushButton("Documents", self)
@@ -101,21 +112,25 @@ class FileOrganizerApp(QMainWindow):
     def manual_input(self):
         source_directory = QFileDialog.getExistingDirectory(self, "Select the source directory")
         if source_directory:
+            self.log(f"Manual Input - Source Directory: {source_directory}\n")
             self.organize_files_by_extension(source_directory)
             QMessageBox.information(self, "Info", "File organization completed.")
 
     def organize_files_on_desktop(self):
         desktop_path = os.path.expanduser("~/Desktop")
+        self.log(f"Organize Files on Desktop - Source Directory: {desktop_path}\n")
         self.organize_files_by_extension(desktop_path)
         QMessageBox.information(self, "Info", "File organization on Desktop completed.")
 
     def organize_files_in_downloads(self):
         downloads_path = os.path.expanduser("~/Downloads")
+        self.log(f"Organize Files in Downloads - Source Directory: {downloads_path}\n")
         self.organize_files_by_extension(downloads_path)
         QMessageBox.information(self, "Info", "File organization in Downloads completed.")
 
     def organize_files_in_documents(self):
         documents_path = os.path.expanduser("~/Documents")
+        self.log(f"Organize Files in Documents - Source Directory: {documents_path}\n")
         self.organize_files_by_extension(documents_path)
         QMessageBox.information(self, "Info", "File organization in Documents completed.")
 
@@ -140,17 +155,27 @@ class FileOrganizerApp(QMainWindow):
 
             destination_file = os.path.join(destination_folder, filename)
             shutil.move(source_file, destination_file)
+            self.log(f"Moved: {source_file} -> {destination_file}\n")
+
+    def log(self, message):
+        with open(self.log_filename, "a") as log_file:
+            log_file.write(message)
 
     def resizeEvent(self, event):
         new_font_size = int(event.size().width() / 10)
         self.label_font.setPointSize(new_font_size)
         self.label.setFont(self.label_font)
 
+
 def main():
+    if not os.path.exists("logs"):
+        os.makedirs("logs")
+
     app = QApplication(sys.argv)
     window = FileOrganizerApp()
     window.show()
     sys.exit(app.exec())
+
 
 if __name__ == "__main__":
     main()
