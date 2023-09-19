@@ -1,0 +1,7 @@
+file_extensions = {
+    'pdf': 'PDFs',
+    'png': 'Images',
+    'jpg': 'Images',
+    'jpeg': 'Images',
+    'gif': 'Images',
+}
