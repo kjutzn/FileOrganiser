@@ -1,60 +1,42 @@
 import os
 import shutil
 import sys
+import requests
 from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, \
     QLabel
 from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtGui import QFont
+##from offline import dictionary
+import json
 
-file_extensions = {
-    'pdf': 'PDFs',
-    'png': 'Images',
-    'jpg': 'Images',
-    'jpeg': 'Images',
-    'gif': 'Images',
-    'doc': 'Documents',
-    'docx': 'Documents',
-    'txt': 'Documents',
-    'zip': 'Archives',
-    'rar': 'Archives',
-    'exe': 'Programs',
-    'mp3': 'Music',
-    'wav': 'Music',
-    'mp4': 'Videos',
-    'avi': 'Videos',
-    'flv': 'Videos',
-    'dmg': 'macOS Disk Images',
-    'deb': 'Debian Software Packages / iOS tweak',
-    'm4a': 'MPEG-4 Audio Files',
-    'tipa': 'TrollStore Application',
-    'ipa': 'iOS App',
-    '7zip': 'Archives',
-    'pkg': 'Package file',
-    'tar.gz': 'Tarball compressed file',
-    'bin': 'Binary disc image',
-    'iso': 'ISO disk image',
-    'toast': 'Toast disk image',
-    'vcd': 'Virtual CD',
-    'csv': 'Comma separated value file',
-    'dat': 'Data file',
-    'db': 'Database file',
-    'log': 'Log files',
-    'mdb': 'Microsoft Access database file',
-    'sav': 'Save files',
-    'sql': 'SQL database file',
-    'tar': 'Linux-Unix Tarball File Archive',
-    'xml': 'XML file',
-    'apk': 'Android package file',
-    'bat': 'Batch File',
-    'py': 'Python files',
-    'fnt': 'Fonts',
-    'fon': 'Fonts',
-    'otf': 'Fonts',
-    'ttf': 'Fonts',
-    'bmp': 'Images',
-    'ico': 'Icons',
-    'webp': 'Images'
-}
+
+def fetch_file_extensions():
+    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/file_extensions.json'
+    response = requests.get(github_url)
+    print("Response Content:", response.text)
+    try:
+        response.raise_for_status()
+
+        response_text = response.text.replace("'", "\"")
+
+        file_extensions = json.loads(response_text)
+
+        if isinstance(file_extensions, dict):
+            return file_extensions
+        else:
+            print("GitHub response is not a valid dictionary")
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.RequestException as req_err:
+        print(f"Request error occurred: {req_err}")
+    except json.JSONDecodeError as json_err:
+        print(f"JSON decoding error occurred: {json_err}")
+
+    # If any error occurs, return the local dictionary as a fallback
+    return dictionary.file_extensions
+
+file_extensions = fetch_file_extensions()
 
 
 def create_log_file():
@@ -62,7 +44,6 @@ def create_log_file():
     log_filename = f"logs/log_{current_datetime.toString('yyyy-MM-dd_hh-mm-ss')}.txt"
     log_file = open(log_filename, "w")
     return log_file, log_filename
-
 
 class FileOrganizerApp(QMainWindow):
     def __init__(self):
@@ -111,6 +92,7 @@ class FileOrganizerApp(QMainWindow):
 
     def manual_input(self):
         source_directory = QFileDialog.getExistingDirectory(self, "Select the source directory")
+
         if source_directory:
             self.log(f"Manual Input - Source Directory: {source_directory}\n")
             self.organize_files_by_extension(source_directory)
@@ -155,7 +137,7 @@ class FileOrganizerApp(QMainWindow):
 
             destination_file = os.path.join(destination_folder, filename)
             shutil.move(source_file, destination_file)
-            self.log(f"Moved: {source_file} -> {destination_file}\n")
+            self.log(f"Moved {source_file} to {destination_file}\n")
 
     def log(self, message):
         with open(self.log_filename, "a") as log_file:
@@ -166,7 +148,6 @@ class FileOrganizerApp(QMainWindow):
         self.label_font.setPointSize(new_font_size)
         self.label.setFont(self.label_font)
 
-
 def main():
     if not os.path.exists("logs"):
         os.makedirs("logs")
@@ -175,7 +156,6 @@ def main():
     window = FileOrganizerApp()
     window.show()
     sys.exit(app.exec())
-
 
 if __name__ == "__main__":
     main()
