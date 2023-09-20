@@ -7,8 +7,6 @@ For Windows use HopperSort.exe
 For Mac use HopperSortMac
 
 
--if having issues with splash screen use HopperSortD.exe also report that issue in GitHub
-
 ![h0pperS0rter](https://github.com/kjutzn/HopperSort/assets/130908680/f4e1aec0-c32c-47da-a99c-95fe6bfbe1db)
 
 
@@ -19,4 +17,4 @@ For Mac use HopperSortMac
 1. Run HopperSort
 
 
-Linux will probably be supported in future (had trouble compiling).
+Linux will probably be supported in future.
