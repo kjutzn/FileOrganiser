@@ -12,7 +12,7 @@ import pyi_splash
 
 
 def fetch_file_extensions():
-    github_url = 'https://raw.githubusercontent.com/yourusername/yourrepository/master/file_extensions.json'
+    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/file_extenions.json'
     response = requests.get(github_url)
 
     try:
