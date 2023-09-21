@@ -6,20 +6,19 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog,
     QLabel
 from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtGui import QFont
-##from offline import dictionary
+from offline import dictionary
 import json
+import pyi_splash
 
 
 def fetch_file_extensions():
-    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/file_extensions.json'
+    github_url = 'https://raw.githubusercontent.com/yourusername/yourrepository/master/file_extensions.json'
     response = requests.get(github_url)
-    print("Response Content:", response.text)
+
     try:
         response.raise_for_status()
 
-        response_text = response.text.replace("'", "\"")
-
-        file_extensions = json.loads(response_text)
+        file_extensions = response.json()
 
         if isinstance(file_extensions, dict):
             return file_extensions
@@ -33,8 +32,7 @@ def fetch_file_extensions():
     except json.JSONDecodeError as json_err:
         print(f"JSON decoding error occurred: {json_err}")
 
-    # If any error occurs, return the local dictionary as a fallback
-    return dictionary.file_extensions
+    return dictionary.file_extensions                    #to do: add local last fetched
 
 file_extensions = fetch_file_extensions()
 
@@ -149,6 +147,7 @@ class FileOrganizerApp(QMainWindow):
         self.label.setFont(self.label_font)
 
 def main():
+    pyi_splash.close()
     if not os.path.exists("logs"):
         os.makedirs("logs")
 
