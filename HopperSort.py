@@ -6,32 +6,27 @@ from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog,
     QLabel
 from PyQt6.QtCore import Qt, QDateTime
 from PyQt6.QtGui import QFont
-from offline import dictionary
-import json
-import pyi_splash
 
 def latest_version():
-    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/latest_version.json
+    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/beta/offline/latest_version.json'
     response = requests.get(github_url)
 
     try:
         response.raise_for_status()
+        latest_version = response.text.strip()
 
-        latest_version  = response.json()
+        local_version = "1.2"
 
-        if isinstance(latest_version, dict):
-            return latest_versions
+        if local_version == latest_version:
+            print("You are using the latest version.")
         else:
-            print("GitHub response is not a valid version")
-            fetch_failed = true
+            print(f"A new version ({latest_version}) is available. Please update.")
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except requests.exceptions.RequestException as req_err:
         print(f"Request error occurred: {req_err}")
-    except json.JSONDecodeError as json_err:
-        print(f"JSON decoding error occurred: {json_err}")
-    
-    return fetch_failed
+
+file_extensions = {}
 
 def fetch_file_extensions():
     github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/file_extenions.json'
@@ -39,7 +34,6 @@ def fetch_file_extensions():
 
     try:
         response.raise_for_status()
-
         file_extensions = response.json()
 
         if isinstance(file_extensions, dict):
@@ -54,23 +48,9 @@ def fetch_file_extensions():
     except json.JSONDecodeError as json_err:
         print(f"JSON decoding error occurred: {json_err}")
 
-    return dictionary.file_extensions                    #to do: add local last fetched
-
-file_extensions = fetch_file_extensions()
-
-
-def create_log_file():
-    current_datetime = QDateTime.currentDateTime()
-    log_filename = f"logs/log_{current_datetime.toString('yyyy-MM-dd_hh-mm-ss')}.txt"
-    log_file = open(log_filename, "w")
-    return log_file, log_filename
-
 class FileOrganizerApp(QMainWindow):
     def __init__(self):
         super().__init__()
-
-        self.log_file, self.log_filename = create_log_file()
-        self.log(f"Debug log  {self.log_filename}\n")
 
         self.setWindowTitle("Hopper Sort")
         self.setGeometry(100, 100, 400, 200)
@@ -137,6 +117,13 @@ class FileOrganizerApp(QMainWindow):
         QMessageBox.information(self, "Info", "File organization in Documents completed.")
 
     def organize_files_by_extension(self, source_folder):
+        global file_extensions
+        if not file_extensions:
+            file_extensions = fetch_file_extensions()
+            if not file_extensions:
+                QMessageBox.warning(self, "Error", "Failed to fetch file extensions. Unable to proceed.")
+                return
+
         for filename in os.listdir(source_folder):
             source_file = os.path.join(source_folder, filename)
 
@@ -160,7 +147,7 @@ class FileOrganizerApp(QMainWindow):
             self.log(f"Moved {source_file} to {destination_file}\n")
 
     def log(self, message):
-        with open(self.log_filename, "a") as log_file:
+        with open("log.txt", "a") as log_file:
             log_file.write(message)
 
     def resizeEvent(self, event):
@@ -169,7 +156,6 @@ class FileOrganizerApp(QMainWindow):
         self.label.setFont(self.label_font)
 
 def main():
-    pyi_splash.close()
     if not os.path.exists("logs"):
         os.makedirs("logs")
 
