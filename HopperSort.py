@@ -10,6 +10,28 @@ from offline import dictionary
 import json
 import pyi_splash
 
+def latest_version():
+    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/latest_version.json
+    response = requests.get(github_url)
+
+    try:
+        response.raise_for_status()
+
+        latest_version  = response.json()
+
+        if isinstance(latest_version, dict):
+            return latest_versions
+        else:
+            print("GitHub response is not a valid version")
+            fetch_failed = true
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.RequestException as req_err:
+        print(f"Request error occurred: {req_err}")
+    except json.JSONDecodeError as json_err:
+        print(f"JSON decoding error occurred: {json_err}")
+    
+    return fetch_failed
 
 def fetch_file_extensions():
     github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/file_extenions.json'
