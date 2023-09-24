@@ -121,7 +121,7 @@ class FileOrganizerApp(QMainWindow):
         if not file_extensions:
             file_extensions = fetch_file_extensions()
             if not file_extensions:
-                QMessageBox.warning(self, "Error", "Failed to fetch file extensions. Using Downloaded extensions.")
+                QMessageBox.warning(self, "Error", "Failed to fetch file extensions. Unable to proceed")
                 return
 
         for filename in os.listdir(source_folder):
