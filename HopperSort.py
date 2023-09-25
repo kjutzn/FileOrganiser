@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 import json
 
-local_version = "1.3"  # Set the local version here
+local_version = "1.3"
 file_extensions = None
 
 def latest_version():
@@ -16,7 +16,7 @@ def latest_version():
 
     try:
         response.raise_for_status()
-        latest_version = response.text.strip().strip('"')  # Remove quotation marks
+        latest_version = response.text.strip().strip('"')
 
         if local_version == latest_version:
             print("You are using the latest version.")
@@ -40,14 +40,13 @@ def prompt_update(latest_version):
     ret = msg_box.exec_()
 
     if ret == QMessageBox.StandardButton.Yes:
-        # Move the path selection prompt here
         source_directory = QFileDialog.getExistingDirectory(None, "Select the source directory")
 
         if source_directory:
             FileOrganizerApp().log(f"Manual Input - Source Directory: {source_directory}\n")
             FileOrganizerApp().organize_files_by_extension(source_directory)
             QMessageBox.information(None, "Info", "File organization completed.")
-            sys.exit(0)  # Exit the application after updating
+            sys.exit(0)
 
 def update_app():
     import webbrowser
@@ -117,7 +116,7 @@ class FileOrganizerApp(QMainWindow):
         self.documents_button.clicked.connect(self.organize_files_in_documents)
 
     def manual_input(self):
-        latest_version()  # Check for the latest version before manual input
+        latest_version()
         source_directory = QFileDialog.getExistingDirectory(self, "Select the source directory")
 
         if source_directory:
@@ -126,21 +125,21 @@ class FileOrganizerApp(QMainWindow):
             QMessageBox.information(self, "Info", "File organization completed.")
 
     def organize_files_on_desktop(self):
-        latest_version()  # Check for the latest version before organizing desktop files
+        latest_version()
         desktop_path = os.path.expanduser("~/Desktop")
         self.log(f"Organize Files on Desktop - Source Directory: {desktop_path}\n")
         self.organize_files_by_extension(desktop_path)
         QMessageBox.information(self, "Info", "File organization on Desktop completed.")
 
     def organize_files_in_downloads(self):
-        latest_version()  # Check for the latest version before organizing downloads
+        latest_version()
         downloads_path = os.path.expanduser("~/Downloads")
         self.log(f"Organize Files in Downloads - Source Directory: {downloads_path}\n")
         self.organize_files_by_extension(downloads_path)
         QMessageBox.information(self, "Info", "File organization in Downloads completed.")
 
     def organize_files_in_documents(self):
-        latest_version()  # Check for the latest version before organizing documents
+        latest_version()
         documents_path = os.path.expanduser("~/Documents")
         self.log(f"Organize Files in Documents - Source Directory: {documents_path}\n")
         self.organize_files_by_extension(documents_path)
