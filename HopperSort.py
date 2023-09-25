@@ -2,10 +2,13 @@ import os
 import shutil
 import sys
 import requests
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, \
-    QLabel
-from PyQt6.QtCore import Qt, QDateTime
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
+import json
+
+local_version = "1.3"  # Set the local version here
+file_extensions = None
 
 def latest_version():
     github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/beta/offline/latest_version.json'
@@ -13,20 +16,43 @@ def latest_version():
 
     try:
         response.raise_for_status()
-        latest_version = response.text.strip()
-
-        local_version = "1.2"
+        latest_version = response.text.strip().strip('"')  # Remove quotation marks
 
         if local_version == latest_version:
             print("You are using the latest version.")
         else:
             print(f"A new version ({latest_version}) is available. Please update.")
+            prompt_update(latest_version)
+
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except requests.exceptions.RequestException as req_err:
         print(f"Request error occurred: {req_err}")
 
-file_extensions = {}
+def prompt_update(latest_version):
+    msg_box = QMessageBox()
+    msg_box.setIcon(QMessageBox.Icon.Information)
+    msg_box.setText(f"A new version ({latest_version}) is available. Do you want to update?")
+    msg_box.setWindowTitle("Update Available")
+    msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+    msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
+
+    ret = msg_box.exec_()
+
+    if ret == QMessageBox.StandardButton.Yes:
+        # Move the path selection prompt here
+        source_directory = QFileDialog.getExistingDirectory(None, "Select the source directory")
+
+        if source_directory:
+            FileOrganizerApp().log(f"Manual Input - Source Directory: {source_directory}\n")
+            FileOrganizerApp().organize_files_by_extension(source_directory)
+            QMessageBox.information(None, "Info", "File organization completed.")
+            sys.exit(0)  # Exit the application after updating
+
+def update_app():
+    import webbrowser
+    github_release_url = 'https://github.com/kjutzn/hoppersort/releases'
+    webbrowser.open(github_release_url)
 
 def fetch_file_extensions():
     github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/file_extenions.json'
@@ -91,6 +117,7 @@ class FileOrganizerApp(QMainWindow):
         self.documents_button.clicked.connect(self.organize_files_in_documents)
 
     def manual_input(self):
+        latest_version()  # Check for the latest version before manual input
         source_directory = QFileDialog.getExistingDirectory(self, "Select the source directory")
 
         if source_directory:
@@ -99,18 +126,21 @@ class FileOrganizerApp(QMainWindow):
             QMessageBox.information(self, "Info", "File organization completed.")
 
     def organize_files_on_desktop(self):
+        latest_version()  # Check for the latest version before organizing desktop files
         desktop_path = os.path.expanduser("~/Desktop")
         self.log(f"Organize Files on Desktop - Source Directory: {desktop_path}\n")
         self.organize_files_by_extension(desktop_path)
         QMessageBox.information(self, "Info", "File organization on Desktop completed.")
 
     def organize_files_in_downloads(self):
+        latest_version()  # Check for the latest version before organizing downloads
         downloads_path = os.path.expanduser("~/Downloads")
         self.log(f"Organize Files in Downloads - Source Directory: {downloads_path}\n")
         self.organize_files_by_extension(downloads_path)
         QMessageBox.information(self, "Info", "File organization in Downloads completed.")
 
     def organize_files_in_documents(self):
+        latest_version()  # Check for the latest version before organizing documents
         documents_path = os.path.expanduser("~/Documents")
         self.log(f"Organize Files in Documents - Source Directory: {documents_path}\n")
         self.organize_files_by_extension(documents_path)
@@ -118,6 +148,7 @@ class FileOrganizerApp(QMainWindow):
 
     def organize_files_by_extension(self, source_folder):
         global file_extensions
+
         if not file_extensions:
             file_extensions = fetch_file_extensions()
             if not file_extensions:
