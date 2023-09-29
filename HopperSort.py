@@ -7,7 +7,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 import json
 
-local_version = "1.3"
+local_version = "1.2"
 file_extensions = None
 
 def latest_version():
