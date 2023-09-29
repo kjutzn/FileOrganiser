@@ -11,7 +11,7 @@ local_version = "1.3"
 file_extensions = None
 
 def latest_version():
-    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/beta/offline/latest_version.json'
+    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/latest_version.json'
     response = requests.get(github_url)
 
     try:
