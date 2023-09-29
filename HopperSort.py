@@ -2,14 +2,56 @@ import os
 import shutil
 import sys
 import requests
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, \
-    QLabel
-from PyQt6.QtCore import Qt, QDateTime
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
+from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
-from offline import dictionary
 import json
-import pyi_splash
 
+local_version = "1.3"
+file_extensions = None
+
+def latest_version():
+    github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/beta/offline/latest_version.json'
+    response = requests.get(github_url)
+
+    try:
+        response.raise_for_status()
+        latest_version = response.text.strip().strip('"')
+
+        if local_version == latest_version:
+            print("You are using the latest version.")
+        else:
+            print(f"A new version ({latest_version}) is available. Please update.")
+            prompt_update(latest_version)
+
+    except requests.exceptions.HTTPError as http_err:
+        print(f"HTTP error occurred: {http_err}")
+    except requests.exceptions.RequestException as req_err:
+        print(f"Request error occurred: {req_err}")
+
+def prompt_update(latest_version):
+    msg_box = QMessageBox()
+    msg_box.setIcon(QMessageBox.Icon.Information)
+    msg_box.setText(f"A new version ({latest_version}) is available. Do you want to update?")
+    msg_box.setWindowTitle("Update Available")
+    msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+    msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
+
+    ret = msg_box.exec_()
+
+    if ret == QMessageBox.StandardButton.Yes:
+        source_directory = QFileDialog.getExistingDirectory(None, "Select the source directory")
+
+        if source_directory:
+            FileOrganizerApp().log(f"Manual Input - Source Directory: {source_directory}\n")
+            FileOrganizerApp().organize_files_by_extension(source_directory)
+            QMessageBox.information(None, "Info", "File organization completed.")
+            sys.exit(0)
+
+def update_app():
+    import webbrowser
+    github_release_url = 'https://github.com/kjutzn/hoppersort/releases'
+    webbrowser.open(github_release_url)
 
 def fetch_file_extensions():
     github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/main/offline/file_extenions.json'
@@ -17,7 +59,6 @@ def fetch_file_extensions():
 
     try:
         response.raise_for_status()
-
         file_extensions = response.json()
 
         if isinstance(file_extensions, dict):
@@ -32,23 +73,9 @@ def fetch_file_extensions():
     except json.JSONDecodeError as json_err:
         print(f"JSON decoding error occurred: {json_err}")
 
-    return dictionary.file_extensions                    #to do: add local last fetched
-
-file_extensions = fetch_file_extensions()
-
-
-def create_log_file():
-    current_datetime = QDateTime.currentDateTime()
-    log_filename = f"logs/log_{current_datetime.toString('yyyy-MM-dd_hh-mm-ss')}.txt"
-    log_file = open(log_filename, "w")
-    return log_file, log_filename
-
 class FileOrganizerApp(QMainWindow):
     def __init__(self):
         super().__init__()
-
-        self.log_file, self.log_filename = create_log_file()
-        self.log(f"Debug log  {self.log_filename}\n")
 
         self.setWindowTitle("Hopper Sort")
         self.setGeometry(100, 100, 400, 200)
@@ -89,6 +116,7 @@ class FileOrganizerApp(QMainWindow):
         self.documents_button.clicked.connect(self.organize_files_in_documents)
 
     def manual_input(self):
+        latest_version()
         source_directory = QFileDialog.getExistingDirectory(self, "Select the source directory")
 
         if source_directory:
@@ -97,24 +125,35 @@ class FileOrganizerApp(QMainWindow):
             QMessageBox.information(self, "Info", "File organization completed.")
 
     def organize_files_on_desktop(self):
+        latest_version()
         desktop_path = os.path.expanduser("~/Desktop")
         self.log(f"Organize Files on Desktop - Source Directory: {desktop_path}\n")
         self.organize_files_by_extension(desktop_path)
         QMessageBox.information(self, "Info", "File organization on Desktop completed.")
 
     def organize_files_in_downloads(self):
+        latest_version()
         downloads_path = os.path.expanduser("~/Downloads")
         self.log(f"Organize Files in Downloads - Source Directory: {downloads_path}\n")
         self.organize_files_by_extension(downloads_path)
         QMessageBox.information(self, "Info", "File organization in Downloads completed.")
 
     def organize_files_in_documents(self):
+        latest_version()
         documents_path = os.path.expanduser("~/Documents")
         self.log(f"Organize Files in Documents - Source Directory: {documents_path}\n")
         self.organize_files_by_extension(documents_path)
         QMessageBox.information(self, "Info", "File organization in Documents completed.")
 
     def organize_files_by_extension(self, source_folder):
+        global file_extensions
+
+        if not file_extensions:
+            file_extensions = fetch_file_extensions()
+            if not file_extensions:
+                QMessageBox.warning(self, "Error", "Failed to fetch file extensions. Unable to proceed")
+                return
+
         for filename in os.listdir(source_folder):
             source_file = os.path.join(source_folder, filename)
 
@@ -138,7 +177,7 @@ class FileOrganizerApp(QMainWindow):
             self.log(f"Moved {source_file} to {destination_file}\n")
 
     def log(self, message):
-        with open(self.log_filename, "a") as log_file:
+        with open("log.txt", "a") as log_file:
             log_file.write(message)
 
     def resizeEvent(self, event):
@@ -147,7 +186,6 @@ class FileOrganizerApp(QMainWindow):
         self.label.setFont(self.label_font)
 
 def main():
-    pyi_splash.close()
     if not os.path.exists("logs"):
         os.makedirs("logs")
 
