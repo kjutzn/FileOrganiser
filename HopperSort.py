@@ -2,7 +2,8 @@ import os
 import shutil
 import sys
 import requests
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, \
+    QLabel, QHBoxLayout
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 import json
@@ -21,13 +22,17 @@ def latest_version():
         if local_version == latest_version:
             print("You are using the latest version.")
         else:
-            print(f"A new version ({latest_version}) is available. Please update.")
-            prompt_update(latest_version)
+            if local_version == "1.3" and latest_version == "1.2":
+                print("You have a beta version. Please update to the stable version.")
+            else:
+                print(f"A new version ({latest_version}) is available. Please update.")
+                prompt_update(latest_version)
 
     except requests.exceptions.HTTPError as http_err:
         print(f"HTTP error occurred: {http_err}")
     except requests.exceptions.RequestException as req_err:
         print(f"Request error occurred: {req_err}")
+
 
 def prompt_update(latest_version):
     msg_box = QMessageBox()
@@ -77,6 +82,8 @@ class FileOrganizerApp(QMainWindow):
     def __init__(self):
         super().__init__()
 
+        self.check_for_beta_version()
+
         self.setWindowTitle("Hopper Sort")
         self.setGeometry(100, 100, 400, 200)
 
@@ -94,26 +101,60 @@ class FileOrganizerApp(QMainWindow):
         self.label.setFont(self.label_font)
         layout.addWidget(self.label)
 
-        self.manual_button = QPushButton("Manual Path", self)
-        font = QFont(self.manual_button.font())
-        font.setPointSize(font.pointSize() + 2)
-        self.manual_button.setFont(font)
-        layout.addWidget(self.manual_button)
+        button_layout = QHBoxLayout()
 
+        self.manual_button = QPushButton("Manual Path", self)
         self.desktop_button = QPushButton("Desktop", self)
         self.downloads_button = QPushButton("Downloads", self)
         self.documents_button = QPushButton("Documents", self)
 
-        layout.addWidget(self.desktop_button)
-        layout.addWidget(self.downloads_button)
-        layout.addWidget(self.documents_button)
+        button_layout.addWidget(self.manual_button)
+        button_layout.addWidget(self.desktop_button)
+        button_layout.addWidget(self.downloads_button)
+        button_layout.addWidget(self.documents_button)
 
+        layout.addLayout(button_layout)
         central_widget.setLayout(layout)
 
         self.manual_button.clicked.connect(self.manual_input)
         self.desktop_button.clicked.connect(self.organize_files_on_desktop)
         self.downloads_button.clicked.connect(self.organize_files_in_downloads)
         self.documents_button.clicked.connect(self.organize_files_in_documents)
+
+    def check_for_beta_version(self):
+        github_url = 'https://raw.githubusercontent.com/kjutzn/HopperSort/beta/offline/latest_version.json'
+        response = requests.get(github_url)
+
+        try:
+            response.raise_for_status()
+            latest_version = response.text.strip().strip('"')
+
+            if local_version == latest_version:
+                print("You are using the latest version.")
+            else:
+                if local_version == "1.3" and latest_version == "1.2":
+                    self.show_beta_version_warning()
+                else:
+                    self.show_update_available_message(latest_version)
+
+        except requests.exceptions.HTTPError as http_err:
+            print(f"HTTP error occurred: {http_err}")
+        except requests.exceptions.RequestException as req_err:
+            print(f"Request error occurred: {req_err}")
+
+    def show_beta_version_warning(self):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Warning)
+        msg_box.setText("You are using a beta version (1.3). Please update to the stable version (1.2).")
+        msg_box.setWindowTitle("Beta Version Warning")
+        msg_box.exec()
+
+    def show_update_available_message(self, latest_version):
+        msg_box = QMessageBox()
+        msg_box.setIcon(QMessageBox.Icon.Information)
+        msg_box.setText(f"A new version ({latest_version}) is available. Please update.")
+        msg_box.setWindowTitle("Update Available")
+        msg_box.exec()
 
     def manual_input(self):
         latest_version()
