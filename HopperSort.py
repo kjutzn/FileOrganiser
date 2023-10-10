@@ -2,8 +2,7 @@ import os
 import shutil
 import sys
 import requests
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, \
-    QLabel, QHBoxLayout
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel, QHBoxLayout
 from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QFont
 import json
@@ -196,9 +195,12 @@ class FileOrganizerApp(QMainWindow):
                 return
 
         for filename in os.listdir(source_folder):
+            if filename.lower() == 'desktop.ini' or filename == '.DS_Store':
+                continue
+
             source_file = os.path.join(source_folder, filename)
 
-            if os.path.isdir(source_file) or filename == '.DS_Store':
+            if os.path.isdir(source_file):
                 continue
 
             file_extension = filename.split('.')[-1]
