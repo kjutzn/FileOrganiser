@@ -2,12 +2,12 @@ import os
 import shutil
 import sys
 import requests
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
-from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
 import json
+from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QHBoxLayout, QWidget, QLabel, QListWidget, QListWidgetItem, QToolButton, QDialog, QDialogButtonBox
+from PyQt6.QtGui import QFont
 
-local_version = "1.2"
+local_version = "1.3"
 file_extensions = None
 
 def latest_version():
@@ -94,26 +94,49 @@ class FileOrganizerApp(QMainWindow):
         self.label.setFont(self.label_font)
         layout.addWidget(self.label)
 
-        self.manual_button = QPushButton("Manual Path", self)
-        font = QFont(self.manual_button.font())
-        font.setPointSize(font.pointSize() + 2)
-        self.manual_button.setFont(font)
-        layout.addWidget(self.manual_button)
+        button_layout = QHBoxLayout()
 
+        self.manual_button = QPushButton("Manual Path", self)
         self.desktop_button = QPushButton("Desktop", self)
         self.downloads_button = QPushButton("Downloads", self)
         self.documents_button = QPushButton("Documents", self)
 
-        layout.addWidget(self.desktop_button)
-        layout.addWidget(self.downloads_button)
-        layout.addWidget(self.documents_button)
+        button_layout.addWidget(self.manual_button)
+        button_layout.addWidget(self.desktop_button)
+        button_layout.addWidget(self.downloads_button)
+        button_layout.addWidget(self.documents_button)
 
+        layout.addLayout(button_layout)
+
+        self.custom_paths_list = QListWidget(self)
+        layout.addWidget(self.custom_paths_list)
+
+        buttons_layout = QHBoxLayout()
+
+        self.add_custom_path_button = QToolButton(self)
+        self.add_custom_path_button.setText("+")
+        self.add_custom_path_button.setFont(QFont("Arial", 14))
+        self.add_custom_path_button.setFixedSize(30, 30)
+
+        self.remove_custom_path_button = QToolButton(self)
+        self.remove_custom_path_button.setText("-")
+        self.remove_custom_path_button.setFont(QFont("Arial", 14))
+        self.remove_custom_path_button.setFixedSize(30, 30)
+
+        buttons_layout.addWidget(self.add_custom_path_button, alignment=Qt.AlignmentFlag.AlignLeft)
+        buttons_layout.addWidget(self.remove_custom_path_button, alignment=Qt.AlignmentFlag.AlignLeft)
+
+        layout.addLayout(buttons_layout)
         central_widget.setLayout(layout)
 
         self.manual_button.clicked.connect(self.manual_input)
         self.desktop_button.clicked.connect(self.organize_files_on_desktop)
         self.downloads_button.clicked.connect(self.organize_files_in_downloads)
         self.documents_button.clicked.connect(self.organize_files_in_documents)
+        self.add_custom_path_button.clicked.connect(self.add_custom_path)
+        self.remove_custom_path_button.clicked.connect(self.remove_custom_path)
+
+        self.load_custom_paths()
 
     def manual_input(self):
         latest_version()
@@ -144,6 +167,36 @@ class FileOrganizerApp(QMainWindow):
         self.log(f"Organize Files in Documents - Source Directory: {documents_path}\n")
         self.organize_files_by_extension(documents_path)
         QMessageBox.information(self, "Info", "File organization in Documents completed.")
+
+    def add_custom_path(self):
+        custom_path = QFileDialog.getExistingDirectory(self, "Select the custom source directory")
+
+        if custom_path:
+            item = QListWidgetItem(custom_path)
+            self.custom_paths_list.addItem(item)
+
+            self.save_custom_paths()
+
+    def remove_custom_path(self):
+        selected_items = self.custom_paths_list.selectedItems()
+
+        if not selected_items:
+            return
+
+        confirm_dialog = QMessageBox(self)
+        confirm_dialog.setIcon(QMessageBox.Icon.Question)
+        confirm_dialog.setText("Are you sure you want to remove the selected custom path?")
+        confirm_dialog.setWindowTitle("Confirm Removal")
+        confirm_dialog.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
+        confirm_dialog.setDefaultButton(QMessageBox.StandardButton.No)
+
+        result = confirm_dialog.exec_()
+
+        if result == QMessageBox.StandardButton.Yes:
+            for item in selected_items:
+                self.custom_paths_list.takeItem(self.custom_paths_list.row(item))
+
+            self.save_custom_paths()
 
     def organize_files_by_extension(self, source_folder):
         global file_extensions
@@ -179,6 +232,24 @@ class FileOrganizerApp(QMainWindow):
     def log(self, message):
         with open("log.txt", "a") as log_file:
             log_file.write(message)
+
+    def save_custom_paths(self):
+        custom_paths = [self.custom_paths_list.item(i).text() for i in range(self.custom_paths_list.count())]
+
+        with open("custom_paths.txt", "w") as file:
+            for path in custom_paths:
+                file.write(path + "\n")
+
+    def load_custom_paths(self):
+        try:
+            with open("custom_paths.txt", "r") as file:
+                custom_paths = [line.strip() for line in file.readlines()]
+
+            for path in custom_paths:
+                item = QListWidgetItem(path)
+                self.custom_paths_list.addItem(item)
+        except FileNotFoundError:
+            pass
 
     def resizeEvent(self, event):
         new_font_size = int(event.size().width() / 10)
