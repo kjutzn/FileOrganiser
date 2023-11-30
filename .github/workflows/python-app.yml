@@ -24,7 +24,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install pyqt6 requests pyinstaller
+        pip install PyQt6 requests pyinstaller QtWidgets QtCore QtGui
 
     - name: Run build script
       run: python hoppersort.py
