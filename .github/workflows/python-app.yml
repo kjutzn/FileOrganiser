@@ -26,8 +26,5 @@ jobs:
       run: |
         pip install PyQt6 requests pyinstaller QtWidgets QtGui
 
-    - name: Run build script
-      run: python hoppersort.py
-
     - name: Build with PyInstaller
       run: python3 -m PyInstaller hoppersort.py --osx-bundle-identifier com.kjutzn.hoppersorter --onefile
