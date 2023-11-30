@@ -2,12 +2,12 @@ import os
 import shutil
 import sys
 import requests
-from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QWidget, QLabel
+from PyQt6.QtWidgets import QApplication, QMainWindow, QPushButton, QFileDialog, QMessageBox, QVBoxLayout, QHBoxLayout, QWidget, QLabel
 from PyQt6.QtCore import Qt
-from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QFont, QFontDatabase
 import json
 
-local_version = "1.2"
+local_version = "1.3"
 file_extensions = None
 
 def latest_version():
@@ -37,7 +37,7 @@ def prompt_update(latest_version):
     msg_box.setStandardButtons(QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No)
     msg_box.setDefaultButton(QMessageBox.StandardButton.Yes)
 
-    ret = msg_box.exec_()
+    ret = msg_box.exec()
 
     if ret == QMessageBox.StandardButton.Yes:
         source_directory = QFileDialog.getExistingDirectory(None, "Select the source directory")
@@ -74,6 +74,9 @@ def fetch_file_extensions():
         print(f"JSON decoding error occurred: {json_err}")
 
 class FileOrganizerApp(QMainWindow):
+    # ... (existing code)
+    script_directory = os.path.dirname(os.path.realpath(__file__))
+
     def __init__(self):
         super().__init__()
 
@@ -82,31 +85,48 @@ class FileOrganizerApp(QMainWindow):
 
         central_widget = QWidget()
         self.setCentralWidget(central_widget)
-        layout = QVBoxLayout()
+
+        label_layout = QVBoxLayout()
+
+        # Get the path to the Fonts folder dynamically
+        font_path = os.path.join(self.script_directory, "Font", "SedgwickAveDisplay-Regular.ttf")
 
         self.label_font = QFont()
-        self.label_font.setPointSize(100)
+        self.label_font.setPointSize(115)
         self.label_font.setBold(True)
-        self.label_font.setFamily("Sedgwick Ave Display")
+
+        if os.path.isfile(font_path):
+            self.label_font_id = QFontDatabase.addApplicationFont(font_path)
+            self.label_font.setFamily(QFontDatabase.applicationFontFamilies(self.label_font_id)[0])
+        else:
+            print("Font file not found!")
 
         self.label = QLabel("Hopper Sort", self)
         self.label.setAlignment(Qt.AlignmentFlag.AlignCenter)
         self.label.setFont(self.label_font)
-        layout.addWidget(self.label)
+        label_layout.addWidget(self.label)
 
-        self.manual_button = QPushButton("Manual Path", self)
-        font = QFont(self.manual_button.font())
-        font.setPointSize(font.pointSize() + 2)
-        self.manual_button.setFont(font)
-        layout.addWidget(self.manual_button)
+        # ... (rest of your code)
+
+        # QHBoxLayout for the buttons
+        buttons_layout = QHBoxLayout()
+        buttons_layout.setSpacing(10)  # Add spacing between buttons
 
         self.desktop_button = QPushButton("Desktop", self)
         self.downloads_button = QPushButton("Downloads", self)
         self.documents_button = QPushButton("Documents", self)
+        self.manual_button = QPushButton("Manual Path", self)
 
-        layout.addWidget(self.desktop_button)
-        layout.addWidget(self.downloads_button)
-        layout.addWidget(self.documents_button)
+
+        buttons_layout.addWidget(self.desktop_button)
+        buttons_layout.addWidget(self.downloads_button)
+        buttons_layout.addWidget(self.documents_button)
+        buttons_layout.addWidget(self.manual_button)
+
+        # Combine label and buttons layouts using a QVBoxLayout
+        layout = QVBoxLayout()
+        layout.addLayout(label_layout)
+        layout.addLayout(buttons_layout)
 
         central_widget.setLayout(layout)
 
