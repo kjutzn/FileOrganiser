@@ -5,8 +5,6 @@
 2. Run it
 3. On Mac you might have to press right click and open since this app wasn't notorized by Apple
 
-# Before and after
-
 # Help
 If you run into any issues, open new GitHub issue, and send me latest log
 
