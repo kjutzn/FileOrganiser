@@ -1,0 +1,33 @@
+name: Build PyQt6 App
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Install dependencies
+      run: |
+        pip install pyqt6 requests pyinstaller
+
+    - name: Run build script
+      run: python hoppersort.py
+
+    - name: Build with PyInstaller
+      run: python3 -m PyInstaller hoppersort.py --osx-bundle-identifier com.kjutzn.hoppersorter --onefile
