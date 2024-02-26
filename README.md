@@ -1,6 +1,7 @@
 <h1 align="center">Hopper Sort</h1>
 
 ## HopperSorter is going to Swift. [Get it here](https://github.com/kjutzn/HopperSorterSwift)
+Release expected 🔜™
 
 # Usage
 1. Download latest version from [here](https://github.com/kjutzn/HopperSort/)
