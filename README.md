@@ -6,7 +6,7 @@
 ## Python version is discontinued
 
 # Usage
-1. Download latest version from [here](https://github.com/kjutzn/HopperSort/)
+1. Download latest version from [here](https://github.com/kjutzn/HopperSort/releases/)
 2. Run it
 3. On Mac you might have to press right click and open since this app wasn't notorized by Apple
 
